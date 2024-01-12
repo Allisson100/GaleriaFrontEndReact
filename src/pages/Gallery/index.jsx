@@ -5,6 +5,7 @@ import Image from "../../components/Image";
 
 import Masonry, {ResponsiveMasonry} from "react-responsive-masonry"
 import { GalleryContainer } from "./styes";
+import { addMessage } from "../../store/reducers/toastMessage";
 
 export default function Gallery () {
 
@@ -13,7 +14,13 @@ export default function Gallery () {
     const imagesDB = useSelector(state => state.imagesDB)
 
     useEffect(() => {
-        dispatch(getImagesDbGallery())
+
+        if(imagesDB.length === 0) {
+            dispatch(getImagesDbGallery())
+        } else {
+            dispatch(addMessage([]))
+        }
+        
     }, [dispatch])
 
     return (

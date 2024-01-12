@@ -26,6 +26,11 @@ imagesDBListener.startListening({
 
         const images = action.payload
 
+        dispatch(addMessage([{
+            message: 'Sending image(s) ...',
+            status: 'success'
+        }]))
+
         const api = fork(async () => {
             return await imagesDBService.postImages(images);
         });
@@ -35,7 +40,7 @@ imagesDBListener.startListening({
         if(response.status === 'ok') {
 
             dispatch(getAllImagesDB())
-            console.log('Fui chamado');
+
             dispatch(addMessage([{
                 message: 'Image(s) sent successfully',
                 status: 'success'
@@ -61,6 +66,12 @@ imagesDBListener.startListening({
         if(imagesDB.length > 0) return unsubscribe()
 
         const api = fork(async () => {
+
+            dispatch(addMessage([{
+                message: 'Loading images ...',
+                status: 'success'
+            }]))
+
             return await imagesDBService.getImagesDB();
         });
 
