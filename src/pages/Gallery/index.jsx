@@ -15,6 +15,14 @@ export default function Gallery() {
 
   useEffect(() => {
     if (imagesDB.length === 0) {
+      dispatch(
+        addMessage([
+          {
+            message: "Loading images ...",
+            status: "success",
+          },
+        ])
+      );
       dispatch(getImagesDbGallery());
     } else {
       dispatch(addMessage([]));

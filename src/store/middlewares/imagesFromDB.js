@@ -1,82 +1,97 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { addImagesDB, getAllImagesDB, getImagesDbGallery, postImagesDB } from "../reducers/imagesFromDB";
+import {
+  addImagesDB,
+  getAllImagesDB,
+  getImagesDbGallery,
+  postImagesDB,
+} from "../reducers/imagesFromDB";
 import imagesDBService from "../../services/imagesFromDB";
 import { reset } from "../reducers/images";
 import { addMessage } from "../reducers/toastMessage";
 
-export const imagesDBListener = createListenerMiddleware()
+export const imagesDBListener = createListenerMiddleware();
 
 imagesDBListener.startListening({
-    actionCreator: getAllImagesDB,
-    effect: async (action, { fork , dispatch }) => {
+  actionCreator: getAllImagesDB,
+  effect: async (action, { fork, dispatch }) => {
+    const api = fork(async () => {
+      return await imagesDBService.getImagesDB();
+    });
 
-        const api = fork(async () => {
-            return await imagesDBService.getImagesDB();
-        });
+    const response = await api.result;
 
-        const response = await api.result
-
-        dispatch(addImagesDB(response.value))
-    }
-})
-
-imagesDBListener.startListening({
-    actionCreator: postImagesDB,
-    effect: async (action, { fork , dispatch }) => {
-
-        const images = action.payload
-
-        dispatch(addMessage([{
-            message: 'Sending image(s) ...',
-            status: 'success'
-        }]))
-
-        const api = fork(async () => {
-            return await imagesDBService.postImages(images);
-        });
-
-        const response = await api.result
-
-        if(response.status === 'ok') {
-
-            dispatch(getAllImagesDB())
-
-            dispatch(addMessage([{
-                message: 'Image(s) sent successfully',
-                status: 'success'
-            }]))
-
-        } else {
-            dispatch(addMessage([{
-                message: 'Image(s) not sent. Try again!',
-                status: 'failed'
-            }]))
-        }
-
-        dispatch(reset())
-    }
-})
+    dispatch(addImagesDB(response.value));
+  },
+});
 
 imagesDBListener.startListening({
-    actionCreator: getImagesDbGallery,
-    effect: async (action, { fork , dispatch , getState , unsubscribe }) => {
+  actionCreator: postImagesDB,
+  effect: async (action, { fork, dispatch }) => {
+    const images = action.payload;
 
-        const { imagesDB } = getState()
+    dispatch(
+      addMessage([
+        {
+          message: "Sending image(s) ...",
+          status: "success",
+        },
+      ])
+    );
 
-        if(imagesDB.length > 0) return unsubscribe()
+    const api = fork(async () => {
+      return await imagesDBService.postImages(images);
+    });
 
-        const api = fork(async () => {
+    const response = await api.result;
 
-            dispatch(addMessage([{
-                message: 'Loading images ...',
-                status: 'success'
-            }]))
+    if (response.status === "ok") {
+      dispatch(getAllImagesDB());
 
-            return await imagesDBService.getImagesDB();
-        });
-
-        const response = await api.result
-
-        dispatch(addImagesDB(response.value))
+      dispatch(
+        addMessage([
+          {
+            message: "Image(s) sent successfully",
+            status: "success",
+          },
+        ])
+      );
+    } else {
+      dispatch(
+        addMessage([
+          {
+            message: "Image(s) not sent. Try again!",
+            status: "failed",
+          },
+        ])
+      );
     }
-})
+
+    dispatch(reset());
+  },
+});
+
+imagesDBListener.startListening({
+  actionCreator: getImagesDbGallery,
+  effect: async (action, { fork, dispatch, getState, unsubscribe }) => {
+    dispatch(
+      addMessage([
+        {
+          message: "Loading images ...",
+          status: "success",
+        },
+      ])
+    );
+
+    const { imagesDB } = getState();
+
+    if (imagesDB.length > 0) return unsubscribe();
+
+    const api = fork(async () => {
+      return await imagesDBService.getImagesDB();
+    });
+
+    const response = await api.result;
+
+    dispatch(addImagesDB(response.value));
+  },
+});

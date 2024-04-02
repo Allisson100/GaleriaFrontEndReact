@@ -3,37 +3,31 @@ import { ToastContainer, ToastText } from "./styles";
 import { useEffect, useState } from "react";
 
 export default function Toast() {
+  const toastMessage = useSelector((state) => state.toastMessage);
 
-    const toastMessage = useSelector(state => state.toastMessage)
+  const [isVisible, setIsVisible] = useState(false);
 
-    const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    let timeoutId;
 
-    useEffect(() => {
+    if (toastMessage !== "") {
+      setIsVisible(true);
 
-        let timeoutId
+      timeoutId = setTimeout(() => {
+        setIsVisible(false);
+      }, 3000);
+    }
 
-        if(toastMessage !== '') {
-            setIsVisible(true);
+    return () => clearTimeout(timeoutId);
+  }, [toastMessage]);
 
-            timeoutId = setTimeout(() => {
-                setIsVisible(false);
-            }, 5000);
-
-        }
-
-        return () => clearTimeout(timeoutId);
-
-    }, [toastMessage]);
-
-
-    return (
-        <ToastContainer $isVisible={isVisible}>
-            {toastMessage.map((toast, index) => (
-                <ToastText key={index} $status={toast.status} $isVisible={isVisible}>
-                    {toast.message}
-                </ToastText>
-            ))}
-        </ToastContainer>
-            
-    )
+  return (
+    <ToastContainer $isVisible={isVisible}>
+      {toastMessage.map((toast, index) => (
+        <ToastText key={index} $status={toast.status} $isVisible={isVisible}>
+          {toast.message}
+        </ToastText>
+      ))}
+    </ToastContainer>
+  );
 }
