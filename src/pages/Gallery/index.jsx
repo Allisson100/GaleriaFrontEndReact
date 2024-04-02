@@ -14,15 +14,15 @@ export default function Gallery() {
   const [renderableImages, setRenderableImages] = useState([]);
 
   useEffect(() => {
+    dispatch(
+      addMessage([
+        {
+          message: "Loading images ...",
+          status: "success",
+        },
+      ])
+    );
     if (imagesDB.length === 0) {
-      dispatch(
-        addMessage([
-          {
-            message: "Loading images ...",
-            status: "success",
-          },
-        ])
-      );
       dispatch(getImagesDbGallery());
     } else {
       dispatch(addMessage([]));
