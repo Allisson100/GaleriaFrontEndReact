@@ -14,6 +14,12 @@ export default function Gallery() {
   const [renderableImages, setRenderableImages] = useState([]);
 
   useEffect(() => {
+    if (imagesDB.length === 0) {
+      dispatch(getImagesDbGallery());
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
     dispatch(
       addMessage([
         {
@@ -22,12 +28,7 @@ export default function Gallery() {
         },
       ])
     );
-    if (imagesDB.length === 0) {
-      dispatch(getImagesDbGallery());
-    } else {
-      dispatch(addMessage([]));
-    }
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     const checkImageExists = async (src) => {
